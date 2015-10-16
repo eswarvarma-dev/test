@@ -189,19 +189,6 @@ Map mergeMaps(Map map1, Map map2) {
   return result;
 }
 
-/// Returns a new list with all elements in both [list1] and [list2].
-///
-/// If an element exists in both lists, it is listed only once in the result.
-List mergeLists(List list1, List list2) {
-  var result = []..addAll(list1);
-  list2.forEach((element) {
-    if (!result.contains(element)) {
-      result.add(element);
-    }
-  });
-  return result;
-}
-
 /// Returns a sink that maps events sent to [original] using [fn].
 StreamSink mapSink(StreamSink original, fn(event)) {
   var controller = new StreamController(sync: true);

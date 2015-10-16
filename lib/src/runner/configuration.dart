@@ -78,9 +78,15 @@ class Configuration {
     parser.addFlag("color", defaultsTo: null,
         help: 'Whether to use terminal colors.\n(auto-detected by default)');
     parser.addOption("tags",
+      abbr: 't',
       help: 'Comma-separated list of tags to run',
       allowMultiple: true,
       splitCommas: true);
+    parser.addOption("tag",
+      help: 'Same as "tags"; just to be lenient to typos',
+      allowMultiple: true,
+      splitCommas: true,
+      hide: true);
 
     return parser;
   })();
@@ -162,6 +168,14 @@ class Configuration {
       pattern = options['plain-name'];
     }
 
+    var tags = [];
+    if (options['tags'] != null) {
+      tags.addAll(options['tags']);
+    }
+    if (options['tag'] != null) {
+      tags.addAll(options['tag']);
+    }
+
     return new Configuration(
         help: options['help'],
         version: options['version'],
@@ -177,7 +191,7 @@ class Configuration {
         pattern: pattern,
         platforms: options['platform'].map(TestPlatform.find),
         paths: options.rest.isEmpty ? null : options.rest,
-        tags: options['tags']);
+        tags: tags);
   }
 
   /// Runs [parse] on the value of the option [name], and wraps any

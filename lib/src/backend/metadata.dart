@@ -34,7 +34,7 @@ class Metadata {
   final String skipReason;
 
   /// A set of tags attached to a test
-  final List<String> tags;
+  final Set<String> tags;
 
   /// Platform-specific metadata.
   ///
@@ -91,14 +91,14 @@ class Metadata {
   /// [testOn] defaults to [PlatformSelector.all].
   Metadata({PlatformSelector testOn, Timeout timeout, bool skip: false,
           this.verboseTrace: false, this.skipReason,
-          Map<PlatformSelector, Metadata> onPlatform, List<String> tags})
+          Map<PlatformSelector, Metadata> onPlatform, Iterable<String> tags})
       : testOn = testOn == null ? PlatformSelector.all : testOn,
         timeout = timeout == null ? const Timeout.factor(1) : timeout,
         skip = skip,
         onPlatform = onPlatform == null
             ? const {}
             : new UnmodifiableMapView(onPlatform),
-        this.tags = tags ?? const <String>[];
+        this.tags = _toTagSet(tags);
 
   /// Creates a new Metadata, but with fields parsed from caller-friendly values
   /// where applicable.
@@ -106,7 +106,7 @@ class Metadata {
   /// Throws a [FormatException] if any field is invalid.
   Metadata.parse({String testOn, Timeout timeout, skip,
           this.verboseTrace: false, Map<String, dynamic> onPlatform,
-          List<String> tags})
+          String tags})
       : testOn = testOn == null
             ? PlatformSelector.all
             : new PlatformSelector.parse(testOn),
@@ -114,14 +114,14 @@ class Metadata {
         skip = skip != null && skip != false,
         skipReason = skip is String ? skip : null,
         onPlatform = _parseOnPlatform(onPlatform),
-        this.tags = tags ?? const <String>[] {
+        this.tags = _toTagSet(tags) {
     if (skip != null && skip is! String && skip is! bool) {
       throw new ArgumentError(
           '"skip" must be a String or a bool, was "$skip".');
     }
   }
 
-  /// Dezerializes the result of [Metadata.serialize] into a new [Metadata].
+  /// Deserializes the result of [Metadata.serialize] into a new [Metadata].
   Metadata.deserialize(serialized)
       : testOn = serialized['testOn'] == null
             ? PlatformSelector.all
@@ -130,7 +130,7 @@ class Metadata {
         skip = serialized['skip'],
         skipReason = serialized['skipReason'],
         verboseTrace = serialized['verboseTrace'],
-        tags = serialized['tags'] ?? const <String>[],
+        tags = _toTagSet(serialized['tags']),
         onPlatform = new Map.fromIterable(serialized['onPlatform'],
             key: (pair) => new PlatformSelector.parse(pair.first),
             value: (pair) => new Metadata.deserialize(pair.last));
@@ -155,7 +155,7 @@ class Metadata {
           verboseTrace: verboseTrace || other.verboseTrace,
           skipReason: other.skipReason == null ? skipReason : other.skipReason,
           onPlatform: mergeMaps(onPlatform, other.onPlatform),
-          tags: mergeLists(tags, other.tags));
+          tags: tags.union(other.tags));
 
   /// Returns a copy of [this] with the given fields changed.
   Metadata change({PlatformSelector testOn, Timeout timeout, bool skip,
@@ -201,7 +201,7 @@ class Metadata {
       'skipReason': skipReason,
       'verboseTrace': verboseTrace,
       'onPlatform': serializedOnPlatform,
-      'tags': tags.isEmpty ? null : tags,
+      'tags': tags.toList(),
     };
   }
 
@@ -215,4 +215,18 @@ class Metadata {
       'scaleFactor': timeout.scaleFactor
     };
   }
+
+  /// Converts [tags] into a [Set] of unique tags, unless it is already a set.
+  ///
+  /// `null` becomes an empty set. A [String] becomes a set of one element.
+  static Set<String> _toTagSet(tags) => tags != null
+      ? tags is Set
+          ? tags
+          : tags is String
+              ? new Set<String>.from([tags])
+              : tags is Iterable
+                  ? new Set<String>.from(tags as Iterable)
+                  : throw new ArgumentError.value(tags, 'tags',
+                      'can only be String or Iterable')
+      : new Set<String>();
 }
