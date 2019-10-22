@@ -267,15 +267,17 @@ class Invoker {
     if (liveTest.isComplete) return;
     if (_timeoutTimer != null) _timeoutTimer.cancel();
 
-    var timeout = liveTest.test.metadata.timeout.apply(Duration(seconds: 30));
-    if (timeout == null) return;
+    // var timeout = liveTest.test.metadata.timeout.apply(Duration(seconds: 30));
+    // if (timeout == null) return;
+    var timeout = const Duration(seconds: 30);
+    final String testName = liveTest.test.name;
     _timeoutTimer = _invokerZone.createTimer(timeout, () {
       _outstandingCallbackZones.last.run(() {
         if (liveTest.isComplete) return;
         _handleError(
             Zone.current,
             TimeoutException(
-                "Test timed out after ${niceDuration(timeout)}.", timeout));
+                "Test \"$testName\" timed out after ${niceDuration(timeout)}.", timeout));
       });
     });
   }
