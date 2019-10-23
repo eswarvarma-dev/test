@@ -116,16 +116,16 @@ void main() {
 
   runZoned(() {
     var serverChannel = _connectToServer();
+    serverChannel.sink.add({
+      'command': 'print',
+      'line': '>>> hello from host.dart',
+    });
     serverChannel.stream.listen((message) {
       if (message['command'] == 'loadSuite') {
         var suiteChannel =
             serverChannel.virtualChannel(message['channel'] as int);
         var iframeChannel =
             _connectToIframe(message['url'] as String, message['id'] as int);
-        iframeChannel.sink.add({
-          'type': 'print',
-          'line': '>>> hello from host.dart',
-        });
         suiteChannel.pipe(iframeChannel);
       } else if (message['command'] == 'displayPause') {
         document.body.classes.add('paused');
