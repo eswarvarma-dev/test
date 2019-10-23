@@ -391,6 +391,7 @@ class Invoker {
           // Using [new Future] also avoids starving the DOM or other
           // microtask-level events.
           unawaited(Future(() async {
+            print('>>> Running ${_test.name}');
             await _test._body();
             await unclosable(_runTearDowns);
             removeOutstandingCallback();

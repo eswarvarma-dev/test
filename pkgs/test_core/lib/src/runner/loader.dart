@@ -219,10 +219,14 @@ class Loader {
         var memo = _platformPlugins[platform.runtime];
 
         try {
+          print('>>> $name >>> var plugin = await memo.runOnce(_platformCallbacks[platform.runtime]);');
           var plugin = await memo.runOnce(_platformCallbacks[platform.runtime]);
+          print('>>> $name >>> _customizePlatform(plugin, platform.runtime);');
           _customizePlatform(plugin, platform.runtime);
+          print('>>> $name >>> await plugin.load($path); // plugin = ${plugin.runtimeType}');
           var suite = await plugin.load(path, platform, platformConfig,
               {"platformVariables": _runtimeVariables.toList()});
+          print('>>> $name >>> after: await plugin.load($path)');
           if (suite != null) _suites.add(suite);
           return suite;
         } catch (error, stackTrace) {
