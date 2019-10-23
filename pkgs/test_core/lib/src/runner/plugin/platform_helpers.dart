@@ -75,6 +75,7 @@ RunnerSuiteController deserializeSuite(
 
   suiteChannel.stream.listen(
       (response) {
+        print('>>> response["type"] = ${response["type"]}');
         switch (response["type"] as String) {
           case "print":
             print(response["line"]);
