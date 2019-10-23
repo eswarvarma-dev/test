@@ -42,6 +42,7 @@ RunnerSuiteController deserializeSuite(
     Environment environment,
     StreamChannel channel,
     Object message) {
+  print('>>> deserializeSuite($path)');
   var disconnector = Disconnector();
   var suiteChannel = MultiChannel(channel.transform(disconnector));
 
