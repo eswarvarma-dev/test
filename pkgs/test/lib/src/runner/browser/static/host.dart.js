@@ -12806,10 +12806,6 @@
     }
   };
   S.NullStreamSink.prototype = {
-    add$1: function(_, data) {
-      H.assertSubtypeOfRuntimeType(data, H.getTypeArgumentByIndex(this, 0));
-      this._checkEventAllowed$0();
-    },
     addStream$1: function(stream) {
       var future, _this = this;
       H.assertSubtype(stream, "$isStream", _this.$ti, "$asStream");
@@ -14234,19 +14230,19 @@
   };
   K.main__closure.prototype = {
     call$1: function(message) {
-      var suiteChannel, t2, t3,
+      var suiteChannel, iframeChannel, t2, t3,
         _s7_ = "command",
         t1 = J.getInterceptor$asx(message);
       if (J.$eq$(t1.$index(message, _s7_), "loadSuite")) {
         suiteChannel = this.serverChannel.virtualChannel$1(H.intTypeCast(t1.$index(message, "channel")));
-        t2 = suiteChannel.sink;
-        t3 = P.String;
-        t2.add$1(0, P.LinkedHashMap_LinkedHashMap$_literal(["type", "print", "line", ">>> hello from host.dart"], t3, t3));
-        t1 = H.assertSubtype(K._connectToIframe(H.stringTypeCast(t1.$index(message, "url")), H.intTypeCast(t1.$index(message, "id"))), "$isStreamChannel", [H.getTypeArgumentByIndex(suiteChannel, 0)], "$asStreamChannel");
-        suiteChannel.stream.pipe$1(t1._sink);
-        t1 = t1._streamController;
+        iframeChannel = K._connectToIframe(H.stringTypeCast(t1.$index(message, "url")), H.intTypeCast(t1.$index(message, "id")));
+        t1 = P.String;
+        iframeChannel._sink.add$1(0, P.LinkedHashMap_LinkedHashMap$_literal(["type", "print", "line", ">>> hello from host.dart"], t1, t1));
+        H.assertSubtype(iframeChannel, "$isStreamChannel", [H.getTypeArgumentByIndex(suiteChannel, 0)], "$asStreamChannel");
+        suiteChannel.stream.pipe$1(iframeChannel._sink);
+        t1 = iframeChannel._streamController;
         t1.toString;
-        new P._ControllerStream(t1, [H.getTypeArgumentByIndex(t1, 0)]).pipe$1(t2);
+        new P._ControllerStream(t1, [H.getTypeArgumentByIndex(t1, 0)]).pipe$1(suiteChannel.sink);
       } else if (J.$eq$(t1.$index(message, _s7_), "displayPause"))
         document.body.classList.add("paused");
       else if (J.$eq$(t1.$index(message, _s7_), "resume"))

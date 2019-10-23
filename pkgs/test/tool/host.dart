@@ -120,12 +120,12 @@ void main() {
       if (message['command'] == 'loadSuite') {
         var suiteChannel =
             serverChannel.virtualChannel(message['channel'] as int);
-        suiteChannel.sink.add({
+        var iframeChannel =
+            _connectToIframe(message['url'] as String, message['id'] as int);
+        iframeChannel.sink.add({
           'type': 'print',
           'line': '>>> hello from host.dart',
         });
-        var iframeChannel =
-            _connectToIframe(message['url'] as String, message['id'] as int);
         suiteChannel.pipe(iframeChannel);
       } else if (message['command'] == 'displayPause') {
         document.body.classes.add('paused');
